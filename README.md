@@ -4,9 +4,9 @@ Album Builder gives an album or EP somewhere to take shape. I made it because I 
 
 There are two connected stages. **Album** is the listening and sequencing workspace. **Release Preparation** carries the same record into master metadata, artwork, promotional copy, videos and a delivery package. The source audio stays unchanged.
 
-![Album Builder showing the Small Hours demonstration album, track waveforms and listening notes.](docs/images/album-workspace.jpg)
+![Album Builder showing Fourth Cause by Bounty Hill, with its sequence waveform and master tracks.](docs/images/album-workspace.jpg)
 
-*The actual interface with generated demo audio and original example artwork. No personal album data is shown.*
+*Fourth Cause by Bounty Hill, with all eight WAV masters loaded.*
 
 This is a macOS development project, built with HTML, CSS, JavaScript and Tauri/Rust. The public repository contains source and build instructions, not a downloadable installer. The application remains copyrighted under the existing [Terms of Use](TERMS.md); making the source public does not grant an open-source licence.
 
@@ -90,7 +90,7 @@ Album Builder uses Lemon Squeezy's Licence API directly from the packaged Tauri 
 
 ## Release Preparation
 
-![Release Preparation showing shared release information, story and credits for the demonstration album.](docs/images/release-preparation.jpg)
+![Release Preparation showing the original release details, descriptions and credits for Fourth Cause by Bounty Hill.](docs/images/release-preparation.jpg)
 
 *Enter the release facts once, then reuse them across the prepared outputs.*
 
