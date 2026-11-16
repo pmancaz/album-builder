@@ -1,0 +1,92 @@
+/* Local system typography: no network fonts or downloads required. */
+:root {
+  color-scheme: light;
+  --font: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+  --bg: #f6f7f9;
+  --bg-tint: #edf0f4;
+  --fg: #202329;
+  --fg-muted: #6b7079;
+  --border: #e4e7ec;
+  --border-strong: #d6dbe3;
+  --accent: #4263d8;
+  --accent-strong: #304fbe;
+  --accent-soft: #edf1ff;
+  --selection-bg: #dce4ff;
+  --selection-fg: #202329;
+  --danger: #b33c49;
+  --surface: rgba(255,255,255,.92);
+  --surface-solid: #fff;
+  --surface-quiet: #f7f8fa;
+  --primary-text: #fff;
+  --art-bg: #edf0f4;
+  --art-cyan: #6380df;
+  --art-copper: #a27655;
+  --art-pale: #575e6b;
+  --art-quiet: #b2bac8;
+  --save-pending: #9a6a25;
+  --save-complete: #36815f;
+}
+[data-theme="night"] {
+  color-scheme: dark;
+  --bg: #141518;
+  --bg-tint: #25272e;
+  --fg: #f0f1f5;
+  --fg-muted: #a0a5b0;
+  --border: #30323b;
+  --border-strong: #414550;
+  --accent: #99adff;
+  --accent-strong: #b3c1ff;
+  --accent-soft: #2b324c;
+  --selection-bg: #394675;
+  --selection-fg: #fff;
+  --danger: #f0949d;
+  --surface: rgba(29,30,35,.94);
+  --surface-solid: #1d1e23;
+  --surface-quiet: #202127;
+  --primary-text: #151b32;
+  --art-bg: #25272e;
+  --art-cyan: #99adff;
+  --art-copper: #bd986f;
+  --art-pale: #cdd3e1;
+  --art-quiet: #555d70;
+  --save-pending: #d3aa6c;
+  --save-complete: #87c8a5;
+}
+/* Keep the optional third appearance available in Settings. */
+[data-theme="nautical"] {
+  color-scheme: dark;
+  --bg: #111e25;
+  --bg-tint: #20333d;
+  --fg: #e6f1f4;
+  --fg-muted: #9aafb9;
+  --border: #2b414c;
+  --border-strong: #405c69;
+  --accent: #8fcacb;
+  --accent-strong: #b5dddd;
+  --accent-soft: #233e47;
+  --selection-bg: #305962;
+  --selection-fg: #fff;
+  --danger: #f4a28d;
+  --surface: rgba(24,41,50,.94);
+  --surface-solid: #182932;
+  --surface-quiet: #1b2e38;
+  --primary-text: #14262b;
+  --art-bg: #20333d;
+  --art-cyan: #8fcacb;
+  --art-copper: #dfaa85;
+  --art-pale: #c1dee4;
+  --art-quiet: #577b89;
+  --save-pending: #dfaa85;
+  --save-complete: #8fcacb;
+}
+
+/* The preparation workspace is a separate document, so it shares the system
+   motion preference here along with the main workspace's palette. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}

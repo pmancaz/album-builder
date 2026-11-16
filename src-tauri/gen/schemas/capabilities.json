@@ -1,0 +1,1 @@
+{"default":{"identifier":"default","description":"Allows the main Album Builder window to select local audio, artwork and export folders.","local":true,"windows":["main"],"permissions":["core:default","dialog:allow-open"]}}

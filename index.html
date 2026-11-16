@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Album Builder</title>
+    <link rel="icon" href="/favicon.png" type="image/png" />
+    <!-- System fonts and local styles also work offline. -->
+    <link rel="stylesheet" href="/theme.css" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- This fixed bar contains the actions that apply to the whole album session. -->
+    <header class="topbar">
+      <div class="topbar__inner">
+        <a class="wordmark" href="#top"><span class="wordmark-symbol" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 10v4m4-8v12m4-15v18m4-15v12m4-8v4"/></svg></span><span>Album Builder</span></a>
+        <div class="top-actions">
+          <button class="text-button" id="albumWorkspaceButton" type="button" aria-pressed="true">Album</button>
+          <button class="text-button" id="releaseCopyButton" type="button" aria-pressed="false">Release Preparation</button>
+          <button class="text-button" id="trackedNotesButton" type="button" aria-pressed="false">Listening notes</button>
+          <button class="text-button" id="themeButton" type="button" title="Switch between Day and Night">Day view</button>
+          <button class="text-button primary-action" id="exportProjectButton" type="button">Export album <span aria-hidden="true">↗</span></button>
+        </div>
+      </div>
+    </header>
+
+    <main class="app-shell" id="top">
+      <!-- The rail is home for saved albums. Optional guidance only appears when tips are on. -->
+      <aside class="side-rail">
+        <section class="rail-section library-section">
+          <div class="rail-heading-row"><p class="eyebrow">Library</p><button class="quiet-action" id="newAlbumButton" type="button">+ New album</button></div>
+          <div class="saved-albums" id="savedAlbums"><p class="empty-library">No saved albums yet.</p></div>
+          <!-- Archived albums remain in the project library and can be restored whenever they are needed again. -->
+          <section class="archived-albums-section" aria-labelledby="archivedAlbumsHeading">
+            <p class="eyebrow" id="archivedAlbumsHeading">Archived</p>
+            <div class="saved-albums archived-albums" id="archivedAlbums"><p class="empty-library">No archived albums.</p></div>
+          </section>
+        </section>
+
+        <div class="tips-only" id="tipsContent">
+          <section class="rail-section">
+            <p class="eyebrow">ALBUM SESSION</p>
+            <h1 id="albumTitle">Untitled album</h1>
+          </section>
+
+          <details class="rail-section" open>
+            <summary>how it works <span>··</span></summary>
+            <ol class="how-to-list">
+              <li>Drop audio into the track list or use +.</li>
+              <li>Drag tracks to try a running order.</li>
+              <li>Use the album strip to audition transitions.</li>
+            </ol>
+          </details>
+
+          <details class="rail-section">
+            <summary>reading the figures <span>··</span></summary>
+            <p class="rail-copy">Integrated LUFS uses the same gated, K-weighted method as Music Analyser. Peak is the highest sample level. Neither value changes your audio.</p>
+          </details>
+        </div>
+
+        <!-- Account and legal links stay quiet so they do not compete with the album workspace. -->
+        <div class="rail-legal">
+          <button class="settings-link" id="settingsButton" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M9 3h6l1 3 3 1 2 5-2 5-3 1-1 3H9l-1-3-3-1-2-5 2-5 3-1z"/><circle cx="12" cy="12" r="3"/></svg>Settings</button>
+          <p class="rail-edition">ALBUM BUILDER <span>0.2.2</span></p>
+          <button class="quiet-action" id="licenseButton" type="button" hidden>licence</button>
+          <button class="quiet-action" id="aboutButton" type="button">About &amp; legal</button>
+        </div>
+      </aside>
+
+      <!-- The centre column is reserved for the album itself: sleeve, waveform and ordered tracks. -->
+      <section class="workspace sequencing-workspace" aria-label="Album sequencing workspace">
+        <!-- Artwork, name and album-level playback position behave like a compact sleeve. -->
+        <section class="album-heading">
+          <div class="artwork-wrap">
+            <button class="artwork" id="artworkButton" type="button" title="Choose album artwork">
+              <img id="artworkPreview" alt="Album artwork preview" hidden />
+              <span class="artwork-empty"><span class="artwork-cross" aria-hidden="true">＋</span>add artwork</span>
+            </button>
+            <button class="artwork-clear" id="artworkClearButton" type="button" aria-label="Clear album artwork" title="Clear album artwork" hidden>−</button>
+          </div>
+          <input id="artworkInput" type="file" accept="image/*" hidden />
+          <div class="album-name-wrap">
+            <label class="field-label" for="albumName">Album title</label>
+            <input class="album-name" id="albumName" value="Untitled album" maxlength="80" />
+            <div class="album-summary" id="albumSummary">0 tracks · 00:00 · no audio loaded</div>
+          </div>
+          <div class="album-position"><span id="nowPlaying">—</span></div>
+        </section>
+
+        <!-- This is the dominant visual: all individual waveforms join here in sequence. -->
+        <section class="panel album-panel">
+          <div class="panel__header album-waveform-header">
+            <div>
+              <p class="panel-heading">Sequence</p>
+              <p class="panel-subtitle tips-only">click a section to audition from that point</p>
+            </div>
+            <!-- These controls operate on the current track, or start the first track when nothing is selected. -->
+            <div class="album-transport" role="group" aria-label="Album transport">
+              <button class="transport-button" id="transportAlbumStartButton" type="button" aria-label="Return to the start of the album" title="Start of album" disabled><span class="transport-bars transport-bars--album" aria-hidden="true"><i></i><i></i></span><span aria-hidden="true">◀</span></button>
+              <button class="transport-button" id="transportRestartButton" type="button" aria-label="Return to the start of the current track" title="Start of track" disabled><span class="transport-bars" aria-hidden="true"><i></i></span><span aria-hidden="true">◀</span></button>
+              <button class="transport-button" id="transportPlayButton" type="button" aria-label="Play album sequence" title="Play" disabled>▶</button>
+              <button class="transport-button" id="transportPauseButton" type="button" aria-label="Pause playback" title="Pause" disabled>Ⅱ</button>
+              <button class="transport-button" id="transportNextButton" type="button" aria-label="Move to the start of the next track" title="Start of next track" disabled><span aria-hidden="true">▶</span><span class="transport-bars" aria-hidden="true"><i></i></span></button>
+            </div>
+            <div class="playback-tools">
+              <label class="volume-control" for="albumVolume"><span>VOL</span><input id="albumVolume" type="range" min="0" max="100" value="100" aria-label="Album playback volume" /></label>
+              <output class="timing-readout" id="positionReadout">00:00 / 00:00</output>
+            </div>
+          </div>
+          <div class="album-waveform-wrap" id="albumWaveformWrap">
+            <canvas id="albumWaveform" aria-label="Album waveform. Click to choose playback position."></canvas>
+            <div class="album-empty" id="albumEmpty">Add tracks to assemble the album waveform.</div>
+            <!-- The meter lives beside the visual so the transport header stays calm and easy to scan. -->
+            <div class="level-meter" aria-label="Playback level"><span id="levelMeterFill"></span></div>
+          </div>
+          <div class="album-ruler" id="albumRuler" aria-hidden="true"></div>
+          <!-- Spectrogram analysis is prepared only when this optional detail is opened. -->
+          <details class="album-spectrogram" id="albumSpectrogramPanel">
+            <summary>Spectrogram <span class="disclosure-mark" aria-hidden="true">⌄</span></summary>
+            <div class="album-spectrogram-frame"><canvas id="albumSpectrogram" aria-label="Album spectrogram"></canvas><p id="albumSpectrogramEmpty">Open this section to analyse the album spectrum.</p></div>
+          </details>
+        </section>
+
+        <!-- The vertical list is the source of truth for the album sequence and the main file drop target. -->
+        <section class="panel tracks-panel" id="dropZone">
+          <input id="audioInput" type="file" accept="audio/*,.wav,.aif,.aiff,.flac,.mp3,.m4a" multiple hidden />
+          <div class="panel__header">
+            <div>
+              <p class="panel-heading">Tracks</p>
+              <p class="panel-subtitle tips-only" id="trackInstruction">Drop tracks here or use the plus button.</p>
+            </div>
+            <div class="track-heading-actions">
+              <output class="timing-readout timing-readout--track-list" id="trackListPositionReadout">00:00 / 00:00</output>
+              <span class="track-count" id="trackCount">00</span>
+              <button class="add-track-button" id="chooseFilesButton" type="button" aria-label="Add audio files" title="Add audio files">＋</button>
+            </div>
+          </div>
+          <div class="track-list" id="trackList"></div>
+        </section>
+
+        <!--
+          Transition Layout is an experimental, non-destructive preview. It uses
+          three real playback lanes so neighbouring songs and extra field
+          recordings can overlap without changing any source audio file.
+        -->
+        <section class="panel transition-panel">
+          <div class="panel__header transition-header">
+            <div>
+              <p class="panel-heading">Transitions</p>
+              <p class="panel-subtitle">three lanes · drag clips to overlap</p>
+            </div>
+            <div class="album-transport" role="group" aria-label="Transition layout transport">
+              <button class="transport-button" id="transitionStartButton" type="button" aria-label="Return to the start of the transition layout" title="Start" disabled><span class="transport-bars transport-bars--album" aria-hidden="true"><i></i><i></i></span><span aria-hidden="true">◀</span></button>
+              <button class="transport-button" id="transitionPlayButton" type="button" aria-label="Play transition layout" title="Play" disabled>▶</button>
+              <button class="transport-button" id="transitionPauseButton" type="button" aria-label="Pause transition layout" title="Pause" disabled>Ⅱ</button>
+            </div>
+            <div class="transition-actions">
+              <output class="timing-readout" id="transitionReadout">00:00 / 00:00</output>
+              <label class="transition-zoom" for="transitionZoom"><span>ZOOM</span><input id="transitionZoom" type="range" min="1" max="4" step="0.25" value="1" /></label>
+              <button class="quiet-action transition-add-overlay" id="transitionAddOverlayButton" type="button">＋ overlay</button>
+            </div>
+          </div>
+          <div class="transition-scroll" id="transitionScroll">
+            <div class="transition-timeline" id="transitionTimeline" aria-label="Three-lane transition timeline">
+              <div class="transition-playhead" id="transitionPlayhead" aria-hidden="true"></div>
+              <div class="transition-lane" data-lane="0"><span class="transition-lane-label">01</span></div>
+              <div class="transition-lane" data-lane="1"><span class="transition-lane-label">02</span></div>
+              <div class="transition-lane" data-lane="2"><span class="transition-lane-label">03</span></div>
+            </div>
+          </div>
+          <div class="transition-empty" id="transitionEmpty">Add album tracks to begin arranging transitions.</div>
+          <div class="transition-inspector" id="transitionInspector" hidden>
+            <div><span>SELECTED</span><strong id="transitionSelectedName">—</strong></div>
+            <div><span>START</span><output id="transitionSelectedStart">00:00</output></div>
+            <label><span>LANE</span><select id="transitionLaneSelect"><option value="0">01</option><option value="1">02</option><option value="2">03</option></select></label>
+            <label><span>FADE IN</span><input id="transitionFadeIn" type="range" min="0" max="30" step="0.1" value="0" /><output id="transitionFadeInValue">0.0s</output></label>
+            <label><span>FADE OUT</span><input id="transitionFadeOut" type="range" min="0" max="30" step="0.1" value="0" /><output id="transitionFadeOutValue">0.0s</output></label>
+            <button class="quiet-action" id="transitionRemoveOverlayButton" type="button" hidden>remove overlay</button>
+          </div>
+          <input id="transitionOverlayInput" type="file" accept="audio/*,.wav,.aif,.aiff,.flac,.mp3,.m4a,.aac,.ogg,.opus" multiple hidden />
+        </section>
+
+
+      </section>
+
+      <!-- Supporting information lives together in a right-hand utility rail and can scroll independently. -->
+      <aside class="utility-rail" aria-label="Album details and other materials">
+        <!-- These are broad album comparisons. The source audio is never changed. -->
+        <details class="panel utility-panel metrics-panel" open>
+          <summary class="panel__header"><p class="panel-heading">Overview</p><span class="disclosure-mark" aria-hidden="true">⌄</span></summary>
+          <dl class="album-metrics">
+            <div><dt>Runtime</dt><dd id="runtimeMetric">00:00</dd></div>
+            <div><dt>Tracks</dt><dd id="trackMetric">00</dd></div>
+            <div><dt>Average LUFS</dt><dd id="lufsMetric">—</dd></div>
+            <div><dt>Max peak</dt><dd id="peakMetric">—</dd></div>
+          </dl>
+        </details>
+
+        <!-- Album notes are saved in the project file and intentionally stay separate from export metadata. -->
+        <details class="panel utility-panel album-notes-panel" open>
+          <summary class="panel__header"><p class="panel-heading">Album notes</p><span class="disclosure-mark" aria-hidden="true">⌄</span></summary>
+          <div class="notepad">
+            <div class="notepad-tools" id="albumNotesToolbar" aria-label="Album note formatting">
+              <button type="button" data-list-format="bullet" title="Start a dot-point list">• list</button>
+              <button type="button" data-list-format="number" title="Start a numbered list">1. list</button>
+              <button type="button" data-list-format="checklist" title="Start a checklist">☐ list</button>
+            </div>
+            <div class="notes-editor" id="albumNotesInput" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Album notes" data-placeholder="Sequencing thoughts, revisions, or ideas for this album…"></div>
+            <button class="note-save-button" id="saveAlbumNoteButton" type="button">Save note</button>
+            <div class="album-note-log" id="albumNoteLog"></div>
+          </div>
+        </details>
+
+        <!-- Unused ideas stay attached to the project without becoming part of the album sequence or export. -->
+        <details class="panel utility-panel materials-panel" open>
+          <summary class="panel__header">
+            <div>
+              <p class="panel-heading">Other materials</p>
+              <p class="panel-subtitle tips-only">Shelved tracks remain available without contributing to album length.</p>
+            </div>
+            <span class="track-count" id="materialCount">00</span>
+            <span class="disclosure-mark" aria-hidden="true">⌄</span>
+          </summary>
+          <div class="materials-list" id="materialsList"></div>
+        </details>
+
+        <!-- References remain outside the album sequence, ready for quick A/B listening. -->
+        <details class="panel utility-panel references-panel">
+          <summary class="panel__header">
+            <div><p class="panel-heading">References</p><p class="panel-subtitle tips-only">Load finished work to compare loudness, shape, and structure.</p></div>
+            <div class="reference-heading-actions"><span class="track-count" id="referenceCount">00</span><button class="add-track-button" id="chooseReferencesButton" type="button" aria-label="Add reference tracks" title="Add reference tracks">＋</button><span class="disclosure-mark" aria-hidden="true">⌄</span></div>
+          </summary>
+          <input id="referenceInput" type="file" accept="audio/*,.wav,.aif,.aiff,.flac,.mp3,.m4a,.aac,.ogg,.opus" multiple hidden />
+          <div class="references-list" id="referencesList"></div>
+        </details>
+
+        <!-- Metadata sits last so the comparison and working panels stay closest to the album. -->
+        <details hidden class="panel metadata-panel">
+          <summary class="panel__header">
+            <div><p class="panel-heading">Release metadata</p><p class="panel-subtitle tips-only">Used when exporting tagged copies of the finished sequence.</p></div>
+            <span class="disclosure-mark" aria-hidden="true">⌄</span>
+          </summary>
+          <div class="metadata-grid">
+            <label><span>ARTIST</span><input id="artistInput" placeholder="Track artist" /></label><label><span>ALBUM ARTIST</span><input id="albumArtistInput" placeholder="Album artist" /></label><label><span>RELEASE YEAR</span><input id="yearInput" inputmode="numeric" maxlength="4" placeholder="2026" /></label><label><span>GENRE</span><input id="genreInput" placeholder="Experimental electronic" /></label><label><span>COMPOSER</span><input id="composerInput" placeholder="Optional" /></label><label><span>DISC NUMBER</span><input id="discNumberInput" inputmode="numeric" placeholder="1" /></label><label><span>LABEL</span><input id="labelInput" placeholder="Optional" /></label><label><span>CATALOGUE</span><input id="catalogueInput" placeholder="Optional" /></label><label class="metadata-comment"><span>COMMENT</span><textarea id="commentInput" rows="2" placeholder="Optional release note"></textarea></label><label class="compilation-field"><input id="compilationInput" type="checkbox" /><span>COMPILATION</span></label>
+          </div>
+          <p class="metadata-derived">Track titles are edited in the track list. Track numbers and totals follow the current sequence automatically.</p>
+        </details>
+      </aside>
+      <section class="release-preparation-view" id="releaseCopyView" hidden aria-label="Release Preparation workspace">
+        <p class="preparation-loading" id="preparationLoading" role="status">Opening Release Preparation…</p>
+        <iframe id="preparationFrame" title="Release Preparation" hidden></iframe>
+      </section>
+    </main>
+
+    <!-- The overlay keeps lengthy project reconstruction calm instead of exposing every individual analysis step. -->
+    <div class="project-loading" id="projectLoading" hidden role="status" aria-live="polite"><div><p>LOADING ALBUM</p><span class="project-loading-bar"><i></i></span><small id="projectLoadingLabel">Preparing project…</small></div></div>
+
+    <!-- This second workspace keeps release writing with the album, without crowding the sequencing view. -->
+    <section hidden id="legacyReleaseFields" aria-hidden="true">
+      <header class="release-copy-header">
+        <div><p class="eyebrow">RELEASE COPY</p><h1 id="releaseCopyTitle">Untitled album</h1><p>Write the release information once, then copy a clean text block for platforms and posts.</p></div>
+        <button class="text-button" id="returnToAlbumButton" type="button">← album builder</button>
+      </header>
+      <div class="release-copy-grid">
+        <section class="panel release-copy-editor">
+          <div class="panel__header"><p class="panel-heading">RELEASE INFORMATION</p></div>
+          <div class="release-copy-fields">
+            <label><span>RELEASE DATE</span><input id="releaseDateInput" type="date" /></label>
+            <label class="release-copy-field--wide"><span>ALBUM DESCRIPTION</span><textarea id="releaseDescriptionInput" rows="8" placeholder="A concise description of the record, its sound, and its context…"></textarea></label>
+            <label class="release-copy-field--wide"><span>ALBUM CREDITS</span><textarea id="releaseCreditsInput" rows="5" placeholder="Written, performed, mixed, mastered, artwork, label, catalogue number…"></textarea></label>
+            <label class="release-copy-field--wide"><span>DIGITAL DOWNLOAD</span><input id="downloadUrlInput" type="url" placeholder="https://…" /></label>
+          </div>
+        </section>
+
+        <section class="panel release-copy-preview-panel">
+          <div class="panel__header"><p class="panel-heading">READY TO COPY</p><button class="copy-release-button" id="copyReleaseCopyButton" type="button">copy text</button></div>
+          <pre class="release-copy-output" id="releaseCopyOutput">Add release information to prepare a copyable text block.</pre>
+        </section>
+
+        <section class="panel release-preset-panel">
+          <div class="panel__header"><p class="panel-heading">ARTIST / LABEL LINK PRESETS</p></div>
+          <div class="release-preset-controls">
+            <label><span>USE FOR THIS RELEASE</span><select id="releasePresetSelect"><option value="">No preset selected</option></select></label>
+            <div class="release-preset-actions"><button class="quiet-action" id="newReleasePresetButton" type="button">new preset</button><button class="quiet-action" id="deleteReleasePresetButton" type="button">delete preset</button></div>
+          </div>
+          <div class="release-copy-fields release-preset-fields">
+            <label><span>PRESET NAME</span><input id="releasePresetNameInput" placeholder="Pat Carroll" /></label>
+            <label><span>WEBSITE</span><input data-release-link="website" type="url" placeholder="https://…" /></label>
+            <label><span>INSTAGRAM</span><input data-release-link="instagram" type="url" placeholder="https://…" /></label>
+            <label><span>BANDCAMP</span><input data-release-link="bandcamp" type="url" placeholder="https://…" /></label>
+            <label><span>SOUNDCLOUD</span><input data-release-link="soundcloud" type="url" placeholder="https://…" /></label>
+            <label><span>YOUTUBE</span><input data-release-link="youtube" type="url" placeholder="https://…" /></label>
+            <label><span>SPOTIFY</span><input data-release-link="spotify" type="url" placeholder="https://…" /></label>
+            <label><span>APPLE MUSIC</span><input data-release-link="appleMusic" type="url" placeholder="https://…" /></label>
+          </div>
+          <button class="save-release-preset-button" id="saveReleasePresetButton" type="button">save link preset</button>
+        </section>
+      </div>
+    </section>
+
+    <!-- Note-taking keeps the artwork central while placing practical controls in quiet, familiar panels. -->
+    <section class="tracked-notes-view" id="trackedNotesView" hidden aria-label="Note-taking view">
+      <!-- This slim slider offers optional navigation without putting a time readout in the listening field. -->
+      <input class="note-taking-progress" id="noteTakingProgress" type="range" min="0" max="1" value="0" step="1" aria-label="Album playback position" />
+      <aside class="panel note-taking-tracks" id="noteTakingTracksPanel">
+        <div class="panel__header"><button class="note-taking-tracks-toggle" id="noteTakingTracksToggle" type="button" aria-expanded="true">tracks <span aria-hidden="true">⌃</span></button></div>
+        <div class="note-taking-track-list" id="noteTakingTrackList"></div>
+      </aside>
+      <div class="tracked-notes-art">
+        <img id="trackedNotesArtwork" alt="Album artwork" hidden />
+        <div class="tracked-notes-art__empty" id="trackedNotesArtworkEmpty">album<br />builder</div>
+      </div>
+      <aside class="panel note-taking-controls" aria-label="Note-taking controls">
+        <div class="panel__header"><button class="note-taking-back" id="noteTakingBackButton" type="button"><span aria-hidden="true">←</span> back</button><p class="panel-heading">NOTE-TAKING</p></div>
+        <div class="note-taking-controls__body">
+          <div class="album-transport note-taking-transport" role="group" aria-label="Note-taking transport">
+            <button class="transport-button" id="noteTakingAlbumStartButton" type="button" aria-label="Return to the start of the album" title="Start of album"><span class="transport-bars transport-bars--album" aria-hidden="true"><i></i><i></i></span><span aria-hidden="true">◀</span></button>
+            <button class="transport-button" id="noteTakingRestartButton" type="button" aria-label="Return to the start of the current track" title="Start of track"><span class="transport-bars" aria-hidden="true"><i></i></span><span aria-hidden="true">◀</span></button>
+            <button class="transport-button" id="noteTakingPlayButton" type="button" aria-label="Play album sequence" title="Play">▶</button>
+            <button class="transport-button" id="noteTakingPauseButton" type="button" aria-label="Pause playback" title="Pause">Ⅱ</button>
+            <button class="transport-button" id="noteTakingNextButton" type="button" aria-label="Move to the start of the next track" title="Start of next track"><span aria-hidden="true">▶</span><span class="transport-bars" aria-hidden="true"><i></i></span></button>
+          </div>
+          <button class="tracked-notes-make" id="trackedNotesMakeButton" type="button">make note</button>
+          <!-- Make Note fills this small stamp before the blank writing field is unlocked. -->
+          <form class="tracked-note-composer" id="trackedNoteComposer">
+            <p id="trackedNoteContext" hidden>00:00</p>
+            <textarea id="trackedNoteInput" rows="5" aria-label="Listening note" disabled required></textarea>
+            <div class="tracked-note-actions"><button id="discardListeningNoteButton" class="quiet-action" type="button" hidden>discard draft</button><button type="submit">Save note</button></div>
+          </form>
+        </div>
+      </aside>
+    </section>
+
+    <!-- This local dialog reads the same Markdown files as the repository, so both copies stay in step. -->
+    <dialog class="legal-dialog" id="legalDialog" aria-labelledby="aboutTitle">
+      <div class="legal-dialog__frame">
+        <header class="legal-dialog__header">
+          <div>
+            <p class="eyebrow">ABOUT</p>
+            <h2 id="aboutTitle">Album Builder</h2>
+            <p>A local desktop workspace for comparing demos, arranging an album sequence, and preparing ordered export copies.</p>
+            <p class="legal-version">Version <span id="appVersion">0.2.2</span> · © 2026 Pat Carroll. All rights reserved.</p>
+          </div>
+          <button class="legal-close" id="legalCloseButton" type="button" aria-label="Close About and Legal">close</button>
+        </header>
+        <nav class="legal-tabs" aria-label="Legal documents">
+          <button id="privacyTab" type="button" aria-pressed="true">privacy policy</button>
+          <button id="termsTab" type="button" aria-pressed="false">terms of use</button>
+        </nav>
+        <article class="legal-document" id="legalDocument" tabindex="0"></article>
+      </div>
+    </dialog>
+
+    <!-- This modal is the only place a customer needs to activate or move their licence. -->
+    <dialog class="license-dialog" id="licenseDialog" aria-labelledby="licenseTitle">
+      <div class="license-dialog__frame">
+        <header class="license-dialog__header">
+          <p class="eyebrow">ALBUM BUILDER</p>
+          <h2 id="licenseTitle">Activate Album Builder</h2>
+          <p id="licenseIntro">Enter the licence key and email address from your Lemon Squeezy receipt.</p>
+        </header>
+        <form class="license-form" id="licenseForm">
+          <label for="licenseKeyInput"><span>LICENCE KEY</span><input id="licenseKeyInput" autocomplete="off" spellcheck="false" placeholder="Paste your licence key" required /></label>
+          <label for="licenseEmailInput"><span>CHECKOUT EMAIL</span><input id="licenseEmailInput" type="email" autocomplete="email" placeholder="you@example.com" required /></label>
+          <button class="license-primary" id="licenseActivateButton" type="submit">activate this Mac</button>
+        </form>
+        <p class="license-status" id="licenseStatus" aria-live="polite"></p>
+        <div class="license-actions">
+          <button class="quiet-action" id="licenseCheckButton" type="button" hidden>check licence now</button>
+          <button class="quiet-action license-deactivate" id="licenseDeactivateButton" type="button" hidden>deactivate this Mac</button>
+          <button class="quiet-action" id="licenseCloseButton" type="button" hidden>close</button>
+        </div>
+        <p class="license-help">A purchase includes activation on up to two Macs. After activation, Album Builder can work offline for up to 30 days before it needs to check the licence again.</p>
+      </div>
+    </dialog>
+
+    <dialog class="settings-dialog" id="settingsDialog" aria-labelledby="settingsTitle">
+      <header class="settings-header"><div><p class="eyebrow">Album Builder</p><h1 id="settingsTitle">Settings</h1></div><button class="settings-close" id="settingsCloseButton" type="button" aria-label="Close settings">✕</button></header>
+      <div class="settings-body">
+        <section class="settings-section" aria-labelledby="appearanceHeading">
+          <h2 id="appearanceHeading">Appearance</h2><p>A quieter workspace, in your preferred light.</p>
+          <div class="appearance-options" role="group" aria-label="Appearance">
+            <button type="button" data-appearance="day" aria-pressed="true"><span class="appearance-preview preview-day"><i></i><i></i><i></i></span><strong>Day</strong><span>Light and clear</span></button>
+            <button type="button" data-appearance="night" aria-pressed="false"><span class="appearance-preview preview-night"><i></i><i></i><i></i></span><strong>Night</strong><span>Easy after dark</span></button>
+            <button type="button" data-appearance="nautical" aria-pressed="false"><span class="appearance-preview preview-nautical"><i></i><i></i><i></i></span><strong>Nautical</strong><span>A little colour</span></button>
+          </div>
+          <div class="display-options">          <button class="text-button" id="tipsButton" type="button" aria-pressed="false">Show guidance</button>
+
+          <!-- This small popover keeps the artwork-strength control beside its on/off switch. -->
+          <div class="art-blur-control" id="artBlurControl">
+            <button class="text-button" id="artBlurButton" type="button" aria-pressed="false">Artwork tint</button>
+            <!-- The compact adjust icon opens the slider without changing whether artwork blur is enabled. -->
+            <button class="art-blur-adjust" id="artBlurAdjustButton" type="button" aria-label="Adjust artwork blur opacity" title="Adjust artwork blur opacity" aria-expanded="false"><span aria-hidden="true"></span></button>
+            <label class="art-blur-slider" for="artBlurOpacity" hidden><span>opacity</span><input id="artBlurOpacity" type="range" min="4" max="32" value="20" aria-label="Artwork blur opacity" /></label>
+          </div>
+</div>
+        </section>
+        <section class="settings-section" aria-labelledby="storageHeading">
+          <h2 id="storageHeading">Album library</h2><p>Choose where your saved albums, notes and arrangements live.</p>
+          <div class="library-location"><span id="libraryLocationLabel">Current folder</span><output id="libraryPath">Loading library location…</output></div>
+          <p class="storage-explanation">Changing folders copies your albums and recovery files, then saves future changes in the new location. Originals stay in the previous folder. Audio files stay in their existing locations.</p>
+          <p class="storage-explanation">For another Mac, choose the same synced library folder there. Let syncing finish before opening an album, and keep its audio files available offline.</p>
+          <div class="settings-actions"><button class="settings-primary" id="chooseLibraryButton" type="button">Choose folder…</button><button class="settings-secondary" id="resetLibraryButton" type="button">Use default folder</button></div>
+          <p class="storage-explanation">Bring an existing Release Preparer project into a new album. Its original JSON file stays unchanged.</p><button class="settings-secondary" id="importPreparationButton" type="button">Import Release Preparer project…</button>
+          <p class="settings-message" id="libraryMessage" role="status" aria-live="polite"></p>
+        </section>
+      </div>
+      <footer class="settings-footer"><span>Changes are saved automatically.</span><button class="settings-primary" id="settingsDoneButton" type="button">Done</button></footer>
+    </dialog>
+
+    <!-- One audio element plays the ordinary track sequence without editing source files. -->
+    <!-- The main player outputs sound. The quiet second player warms the next album file in the browser cache. -->
+    <audio id="audioPlayer" preload="auto"></audio>
+    <audio id="audioPreloader" preload="auto" muted aria-hidden="true"></audio>
+    <!--
+      The experimental transition layout has one direct media player per lane.
+      Keeping the players separate allows real overlaps while avoiding an extra
+      Web Audio processing graph between the files and the Mac's output.
+    -->
+    <audio id="transitionPlayer1" preload="auto" aria-hidden="true"></audio>
+    <audio id="transitionPlayer2" preload="auto" aria-hidden="true"></audio>
+    <audio id="transitionPlayer3" preload="auto" aria-hidden="true"></audio>
+    <!-- This input is used only when replacing one existing track, keeping its row details intact. -->
+    <input id="replaceAudioInput" type="file" accept="audio/*,.wav,.aif,.aiff,.flac,.mp3,.m4a,.aac,.ogg,.opus" hidden />
+    <template id="trackTemplate">
+      <article class="track">
+        <!-- Only this handle starts a reorder, so editing titles and using menus never drags the row by accident. -->
+        <div class="drag-handle" title="Drag to rearrange" aria-label="Drag to rearrange">⠿</div>
+        <div class="track-number"></div>
+        <button class="track-play" type="button" aria-label="Play track">▶</button>
+        <div class="track-main">
+          <!-- Track titles stay editable because the sequencing title may differ from the source filename. -->
+          <input class="track-name" type="text" aria-label="Track title" maxlength="180" spellcheck="false">
+          <canvas class="track-waveform" aria-label="Track waveform. Click to play from this position."></canvas>
+          <!-- Track notes are collapsed by default so the sequencing list stays compact. -->
+          <details class="track-notes">
+            <summary>notes <span class="track-note-indicator" aria-label="Track has notes" hidden>●</span></summary>
+            <div class="notepad-tools track-notes-tools" aria-label="Track note formatting">
+              <button type="button" data-list-format="bullet" title="Start a dot-point list">• list</button>
+              <button type="button" data-list-format="number" title="Start a numbered list">1. list</button>
+              <button type="button" data-list-format="checklist" title="Start a checklist">☐ list</button>
+            </div>
+            <div class="notes-editor track-notes-input" contenteditable="true" role="textbox" aria-multiline="true" aria-label="Track notes" data-placeholder="Track-specific ideas or changes…"></div>
+            <!-- Focused-listening notes are stored separately, so ordinary working notes stay easy to edit. -->
+            <div class="tracked-note-log" aria-label="Timestamped listening notes"></div>
+          </details>
+        </div>
+        <dl class="track-metrics">
+          <div><dt>Length</dt><dd class="duration">--:--</dd></div>
+          <div><dt>LUFS</dt><dd class="lufs">analysing</dd></div>
+          <div><dt>PEAK</dt><dd class="peak">analysing</dd></div>
+        </dl>
+        <!-- Status is optional: the blank choice means the track is unlabelled. -->
+        <label class="track-status-wrap">
+          <span class="sr-only">Track status</span>
+          <select class="track-status" aria-label="Track status">
+            <option value="">status</option>
+            <option value="sketch">sketch</option>
+            <option value="demo">demo</option>
+            <option value="master">master</option>
+          </select>
+        </label>
+        <div class="track-actions">
+          <button class="replace-track" type="button" aria-label="Replace audio for this track">replace</button>
+          <button class="shelve-track" type="button" aria-label="Move track to other materials">unused</button>
+          <button class="remove-track" type="button" aria-label="Remove track">remove</button>
+        </div>
+      </article>
+    </template>
+
+    <template id="referenceTemplate">
+      <article class="reference-row">
+        <div class="reference-artwork" aria-hidden="true"><img class="reference-artwork-image" alt="" hidden /><span class="reference-artwork-fallback">◒</span></div>
+        <button class="reference-play" type="button" aria-label="Play reference track">▶</button>
+        <div class="reference-main"><span class="reference-name"></span><canvas class="reference-waveform" aria-label="Reference waveform. Click to play from this position."></canvas><div class="reference-stats"><span class="reference-position"></span><span class="reference-measurements"><span class="reference-lufs"></span><span class="reference-peak"></span></span></div></div>
+        <button class="remove-reference" type="button" aria-label="Remove reference track">remove</button>
+      </article>
+    </template>
+
+    <template id="materialTemplate">
+      <article class="material-row">
+        <button class="restore-material" type="button" aria-label="Add material to track list">＋</button>
+        <div class="material-main">
+          <input class="material-name" type="text" aria-label="Material title" maxlength="180" spellcheck="false" />
+          <canvas class="material-waveform" aria-hidden="true"></canvas>
+        </div>
+        <span class="material-duration"></span>
+        <span class="material-lufs"></span>
+        <button class="remove-material" type="button" aria-label="Remove material">remove</button>
+      </article>
+    </template>
+
+    <!-- Saving stays visible without competing with the album workspace. JavaScript updates the dot and label. -->
+    <p class="save-state" id="sessionStatus" aria-live="polite"><span></span> new album</p>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,93 @@
+@import '../public/theme.css';
+:root { --muted: var(--fg-muted); --panel: var(--surface-solid); font-family: var(--font); }
+html { min-width: 0; }
+body { font-family: var(--font); font-size: 13px; background: var(--bg); -webkit-font-smoothing: antialiased; }
+[data-theme="nautical"] body { background-image: none; }
+button, input, textarea, select { font-family: var(--font); }
+button { border-radius: 7px; }
+button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, .custom-select-trigger:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.preparation-toolbar { position: relative; display: flex; justify-content: flex-end; height: auto; min-height: 55px; padding: 8px 24px; background: var(--surface-quiet); border: 0; border-bottom: 1px solid var(--border); }
+.preparation-toolbar .wordmark, .project-title-wrap, #saveStatus, #savedProjectSelect, #savedProjectSelect + .custom-select, #newProjectButton, #saveProjectButton, #quickExportButton, #themeButton { display: none !important; }
+.preparation-toolbar .topbar-actions { flex-wrap: wrap; justify-content: flex-end; gap: 10px; padding: 0; border: 0; }
+.topbar-actions .custom-select { width: 170px; }
+.topbar-actions .custom-select-trigger { font-size: 12px; }
+.text-button, .icon-button, .small-button, .topbar select { font-size: 12px; }
+.text-button { padding: 6px 10px; }
+.text-button:hover { background: var(--accent-soft); text-decoration: none; }
+.app-layout { display: block; min-height: 0; }
+.stage-nav { position: sticky; top: 0; z-index: 15; height: auto; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 12px 24px; overflow: visible; border: 0; border-bottom: 1px solid var(--border); background: var(--surface-solid); }
+.stage-nav > .micro-label, .recent-releases { display: none; }
+.stage-button { display: flex; align-items: center; gap: 8px; width: auto; min-height: 34px; padding: 7px 12px; border: 0 !important; border-radius: 7px; color: var(--fg-muted); }
+.stage-button b { display: none; }.stage-button span { font-size: 12px; font-weight: 500; }.stage-button i { width: 5px; height: 5px; border-radius: 50%; }
+.stage-button.is-active { color: var(--accent); background: var(--accent-soft); }
+.nav-progress { display: none; }.nav-progress-label { width: 100%; margin: 5px 0 0 4px; font-size: 11px; letter-spacing: 0; }
+.workspace { padding: 28px 28px 64px; }
+.stage-header { margin-bottom: 24px; padding-bottom: 20px; gap: 20px; }
+.stage-header h1 { margin: 4px 0 8px; color: var(--fg); font-size: 30px; font-weight: 650; letter-spacing: -.8px; }
+.stage-header p:not(.eyebrow) { font-size: 12px; line-height: 1.6; }
+.eyebrow, .micro-label, .stage-readout, .stage-readout span { font-size: 11px; letter-spacing: 0; }
+.panel { border-radius: 12px; overflow: clip; }
+.panel-header { padding: 14px 18px; min-height: 48px; color: var(--fg); font-size: 12px; font-weight: 600; letter-spacing: 0; text-transform: none; }
+.panel-header span + span { color: var(--fg-muted); font-size: 10px; font-weight: 400; }
+.panel-header::before { display: none; }
+.form-grid { padding: 18px; gap: 18px 16px; }
+.field { font-size: 11px; font-weight: 500; letter-spacing: 0; }
+.field > span { text-transform: none; }
+.field input:not([type="color"]), .field textarea, .field select { border: 1px solid var(--border); border-radius: 7px; background: var(--surface-quiet); padding: 9px 10px; font-size: 13px; }
+.field small { font-size: 11px; }
+.custom-select-trigger { min-height: 36px; padding: 8px 10px; border-radius: 7px; background: var(--surface-quiet); font-size: 12px; }
+.custom-select-menu { background: var(--surface-solid); border-radius: 8px; box-shadow: 0 8px 30px #00000020; }
+.custom-select-option { padding: 9px 12px; font-size: 12px; }
+/* Keep one native select in the keyboard and accessibility order. Its visual
+   replacement is pointer-only; keyboard focus reveals the actual control. */
+.custom-select > .native-select-source:focus {
+  inset: 0; z-index: 90; width: 100% !important; height: 100% !important;
+  margin: 0 !important; padding: 8px 10px !important; clip: auto;
+  overflow: visible !important; border: 1px solid var(--border) !important;
+  border-radius: 7px; background: var(--surface-quiet); color: var(--fg); font: inherit;
+}
+.custom-select > .native-select-source:focus + .custom-select-trigger { visibility: hidden; }
+.primary-button { border-radius: 7px; padding: 10px 15px; background: var(--accent); color: var(--primary-text); border-color: var(--accent); font-size: 12px; }
+.primary-button:hover:not(:disabled) { background: var(--accent-strong); color: var(--primary-text); }
+.brainstorm-actions { gap: 12px; }.brainstorm-actions p { font-size: 12px; }
+.master-card { border-radius: 10px; background: var(--surface-solid); }
+.master-title, .master-source, .filename-preview, .master-field, .master-field input, .master-field select, .master-playback-time { font-size: 12px; }
+.master-field input, .master-field select { border-radius: 5px; padding: 7px; }
+.artwork-canvas-panel, .video-canvas-panel, .video-preview-wrap { border-radius: 12px; overflow: hidden; }
+.artwork-canvas-panel { position: sticky; top: 138px; }
+.copy-preview-panel { top: 138px; min-height: 450px; }
+.copy-tabs { flex-wrap: wrap; }.copy-tab { min-height: 36px; flex: 1 0 auto; padding: 8px; font-size: 11px; border: 0; }
+.copy-tab.is-active { border-radius: 0; background: var(--accent-soft); }
+.copy-preview { font: 13px/1.8 var(--font); white-space: pre-wrap; overflow-wrap: anywhere; }
+.checklist-item, .checklist-summary, .export-status { font-size: 12px; }
+.folder-tree { font-size: 12px; line-height: 1.8; }
+dialog { max-width: calc(100vw - 32px); max-height: calc(100vh - 32px); border-radius: 14px; border-color: var(--border); background: var(--surface-solid); }
+dialog::backdrop { background: #10132265; backdrop-filter: blur(5px); }
+dialog h2 { color: var(--fg); font-size: 22px; letter-spacing: -.5px; }
+.dialog-copy, .context-tip, .artist-preset-status, .settings-status { font-size: 12px; }
+@media (max-width: 1100px) {
+ .content-grid--two { grid-template-columns: 1fr; }
+ .artwork-layout, .video-layout { grid-template-columns: minmax(0,1fr); }
+ .artwork-canvas-panel, .copy-preview-panel { position: static; }
+ .artwork-canvas-panel { max-width: 680px; }
+ .stage-nav { padding: 10px 18px; }.workspace { padding: 24px 20px 48px; }
+ .stage-header h1 { font-size: 27px; }
+}
+@media (max-width: 650px) {
+ .preparation-toolbar { padding: 8px 16px; }.stage-nav { padding: 10px 12px; gap: 4px; }.stage-button { padding: 6px 9px; }
+ .workspace { padding: 22px 14px 48px; }.form-grid { grid-template-columns: minmax(0,1fr); }.field--wide { grid-column: auto; }
+ .stage-header { flex-wrap: wrap; }.panel-header span + span { display: none; }
+ .masters-toolbar, .naming-row { flex-wrap: wrap; }
+}
+
+.preparation-toolbar .custom-select:has(#savedProjectSelect) { display: none !important; }
+.stage-readout, .field > span, .panel-header, .eyebrow, .micro-label { text-transform: none; }
+/* Long promotion campaigns scroll with the workspace; menus can extend past cards. */
+.panel { overflow: visible; }
+.panel-header { border-radius: 12px 12px 0 0; }
+.promotion-editor { max-height: none; overflow: visible; }
+#copyPreview { min-height: 340px; max-height: calc(100vh - 320px); font: 13px/1.8 var(--font); overflow-wrap: anywhere; }
+.copy-preview-panel { min-height: 0; }
+.control-section-title, .control-label, .social-post-title, .social-post-card textarea { font-family: var(--font); font-size: 12px; }
+
+.copy-fallback { display:block; width:calc(100% - 32px); min-height:180px; margin:16px; padding:12px; border:1px solid var(--border); border-radius:8px; background:var(--surface-quiet); color:var(--fg); font:13px/1.7 var(--font); }

@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="A local-first record-label release preparation workspace." />
+    <title>Album Builder · Release Preparation</title>
+    <link rel="stylesheet" href="/theme.css" />
+
+  </head>
+  <body>
+    <!-- The top bar keeps project actions visible while the workspace changes underneath it. -->
+    <header class="topbar preparation-toolbar">
+      <div class="wordmark"><span class="wordmark-mark" aria-hidden="true">RP</span><span>Release Preparer</span></div>
+      <div class="project-title-wrap">
+        <span class="micro-label">CURRENT RELEASE</span>
+        <input id="projectNameInput" value="Untitled release" aria-label="Current release project name" />
+      </div>
+      <div class="topbar-actions">
+        <span class="save-status" id="saveStatus"><i></i> not saved</span>
+        <select id="savedProjectSelect" aria-label="Open a saved release"><option value="">saved releases</option></select>
+        <select id="artistPresetSelect" aria-label="Apply an artist template"><option value="">artist template</option></select>
+        <button id="manageArtistPresetsButton" class="text-button">edit artists</button>
+        <button id="newProjectButton" class="text-button">new</button>
+        <button id="saveProjectButton" class="text-button">save</button>
+        <button id="quickExportButton" class="text-button">export</button>
+        <button id="appSettingsButton" class="text-button" type="button">AI settings</button>
+        <button id="tipsButton" class="text-button" type="button" aria-pressed="true" title="Hide helpful notes">tips?</button>
+        <button id="themeButton" class="icon-button" aria-label="Change appearance" title="Change appearance">◐</button>
+      </div>
+    </header>
+
+    <div class="app-layout">
+      <!-- Each section is one stage of the same release pipeline. -->
+      <nav class="stage-nav" aria-label="Release preparation stages">
+        <p class="micro-label">PIPELINE</p>
+        <button class="stage-button is-active" data-stage="release" id="preparation-stage-button-release" aria-controls="preparation-stage-release" aria-current="step"><b>01</b><span>Release</span><i data-stage-status="release">—</i></button>
+        <button class="stage-button" data-stage="masters" id="preparation-stage-button-masters" aria-controls="preparation-stage-masters"><b>02</b><span>Masters</span><i data-stage-status="masters">—</i></button>
+        <button class="stage-button" data-stage="artwork" id="preparation-stage-button-artwork" aria-controls="preparation-stage-artwork"><b>03</b><span>Artwork</span><i data-stage-status="artwork">—</i></button>
+        <button class="stage-button" data-stage="promotion" id="preparation-stage-button-promotion" aria-controls="preparation-stage-promotion"><b>04</b><span>Promotion</span><i data-stage-status="promotion">—</i></button>
+        <button class="stage-button" data-stage="video" id="preparation-stage-button-video" aria-controls="preparation-stage-video"><b>05</b><span>Videos</span><i data-stage-status="video">—</i></button>
+        <button class="stage-button" data-stage="review" id="preparation-stage-button-review" aria-controls="preparation-stage-review"><b>06</b><span>Review + export</span><i data-stage-status="review">—</i></button>
+        <div class="nav-progress"><span id="progressBar"></span></div>
+        <p class="nav-progress-label" id="progressLabel">0 of 5 preparation stages ready</p>
+        <section class="recent-releases" aria-label="Recent releases">
+          <p class="micro-label">RECENT RELEASES</p>
+          <div id="recentReleasesList"><span class="recent-empty">Saved releases will appear here.</span></div>
+        </section>
+      </nav>
+
+      <main class="workspace">
+        <!-- RELEASE: shared facts feed metadata, filenames, copy, and export folders. -->
+        <section class="stage-view is-active" data-stage-view="release" id="preparation-stage-release" aria-labelledby="preparation-stage-button-release">
+          <header class="stage-header"><div><p class="eyebrow">01 / RELEASE</p><h1>Release information</h1><p>Shared release details for metadata, artwork, promotional copy, and export.</p></div><span class="stage-readout" id="releaseReadout">0 / 8 required</span></header>
+          <div class="content-grid content-grid--two">
+            <section class="panel">
+              <div class="panel-header"><span>Identity</span><span>Core record details</span></div>
+              <div class="form-grid">
+                <label class="field field--wide"><span>Release title *</span><input id="releaseTitleInput" placeholder="Album or EP title" /></label>
+                <label class="field"><span>Primary artist *</span><input id="artistInput" placeholder="Artist name" /></label>
+                <label class="field"><span>Album artist</span><input id="albumArtistInput" placeholder="Defaults to primary artist" /></label>
+                <label class="field"><span>Release date *</span><input id="releaseDateInput" type="date" /></label>
+                <label class="field"><span>Year</span><input id="yearInput" inputmode="numeric" maxlength="4" placeholder="2026" /></label>
+                <label class="field"><span>Label *</span><input id="labelInput" placeholder="Record label" /></label>
+                <label class="field"><span>Catalogue number *</span><input id="catalogueInput" placeholder="LABEL001" /></label>
+                <label class="field"><span>Genre</span><input id="genreInput" placeholder="Electronic" /></label>
+                <label class="field"><span>UPC / EAN</span><input id="upcInput" placeholder="Optional release barcode" /></label>
+                <label class="field"><span>Composer</span><input id="composerInput" placeholder="Default composer" /></label>
+<label class="field"><span>Disc number</span><input id="discNumberInput" placeholder="1" /></label>
+<label class="field"><span>Comment</span><input id="commentInput" /></label>
+<label class="field"><span>Compilation</span><select id="compilationInput"><option value="false">No</option><option value="true">Yes</option></select></label><label class="field field--wide"><span>Copyright line</span><input id="copyrightInput" placeholder="© and ℗ details" /></label>
+              </div>
+            </section>
+            <section class="panel">
+              <div class="panel-header"><span>Story + credits</span><span>Reused across outputs</span></div>
+              <div class="form-grid form-grid--single">
+                <label class="field"><span>Short description *</span><textarea id="shortDescriptionInput" rows="4" placeholder="A compact two- or three-sentence introduction for listings and social copy."></textarea><small><span id="shortDescriptionCount">0</span> / 500 characters</small></label>
+                <label class="field"><span>Full release story *</span><textarea id="longDescriptionInput" rows="9" placeholder="The story behind the release, its sound, context, and what it means to the artist."></textarea></label>
+                <label class="field"><span>Credits *</span><textarea id="creditsInput" rows="6" placeholder="Written and performed by…&#10;Mixed by…&#10;Mastered by…&#10;Artwork by…"></textarea></label>
+              </div>
+            </section>
+          </div>
+          <section class="panel brainstorm-panel">
+            <div class="panel-header"><span>Release brainstorm</span><span>Openai drafting</span></div>
+            <div class="brainstorm-editor">
+              <label class="field"><span>Notes about the record</span><textarea id="brainstormInput" rows="12" placeholder="Dump in whatever you are thinking: what the record means, what you aimed to do, how it was made, important tracks, images, memories, themes, context, or phrases worth keeping."></textarea></label>
+              <footer class="brainstorm-actions">
+                <p class="context-tip">The model reads the current release, brainstorm, existing copy, masters, and up to five previous releases for tone. Drafting replaces only the writing fields and preserves release facts. OpenAI key and model are managed once in Settings.</p>
+                <span id="brainstormHandoffStatus" role="status"></span>
+                <button id="refreshAiDraftButton" class="text-button bordered" type="button">refresh from current information</button>
+                <button id="generateAiDraftButton" class="primary-button" type="button">draft release copy</button>
+              </footer>
+            </div>
+          </section>
+        </section>
+
+        <!-- MASTERS: imported metadata stays editable per file before non-destructive export. -->
+        <section class="stage-view" data-stage-view="masters" id="preparation-stage-masters" aria-labelledby="preparation-stage-button-masters" hidden>
+          <header class="stage-header"><div><p class="eyebrow">02 / MASTERS</p><h1>Master filenames + metadata</h1><p>Edit the output filenames and embedded metadata for the prepared master copies.</p></div><button id="useAlbumSequenceButton" type="button" class="text-button bordered">Use album sequence</button><button id="chooseMastersButton" class="primary-button">+ add masters</button></header>
+          <section class="panel naming-panel">
+            <div class="panel-header"><span>File name rule</span><span>Preview updates live</span></div>
+            <div class="naming-row">
+              <label class="field"><span>Format</span><input id="filenamePatternInput" value="{track} - {artist} - {title}" /></label>
+              <p class="token-help context-tip">Available: <code>{track}</code> <code>{artist}</code> <code>{title}</code> <code>{album}</code> <code>{catalogue}</code></p>
+            </div>
+          </section>
+          <div class="master-toolbar"><span id="masterCount">0 masters</span><span id="masterIssueCount">add audio files to begin</span></div>
+          <div class="masters-list" id="mastersList">
+            <button class="empty-dropzone" id="mastersDropzone"><span>Drop or choose master files</span><small>WAV · AIFF · FLAC · MP3 · M4A</small></button>
+          </div>
+        </section>
+
+        <!-- ARTWORK: a background and reusable vector-like stamp are composed on a square canvas. -->
+        <section class="stage-view" data-stage-view="artwork" id="preparation-stage-artwork" aria-labelledby="preparation-stage-button-artwork" hidden>
+          <header class="stage-header"><div><p class="eyebrow">03 / ARTWORK</p><h1>Album artwork</h1><p>Combine the background image, label logo, release text, and generated release symbol. Export size: 3000 × 3000 PNG.</p></div><div class="template-header-actions"><button id="saveArtworkPresetAsNewButton" class="text-button bordered" disabled>save as new template</button><button id="saveArtworkPresetButton" class="text-button bordered">save template</button></div></header>
+          <div class="artwork-layout">
+            <section class="artwork-canvas-panel">
+              <canvas id="artworkCanvas" width="3000" height="3000" aria-label="Artwork preview"></canvas>
+              <div class="artwork-actions"><button id="chooseBackgroundButton" class="primary-button">choose background</button><button id="backgroundPositionButton" class="text-button bordered" disabled>reposition background</button><button id="chooseLogoButton" class="text-button bordered">replace placeholder logo</button><button id="useDefaultMarkButton" class="text-button">restore placeholder</button></div>
+            </section>
+            <section class="panel artwork-controls">
+              <div class="panel-header"><span>Artwork template</span><span>Live preview</span></div>
+              <div class="form-grid form-grid--single">
+                <label class="field"><span>Template</span><div class="inline-control inline-control--template"><select id="artworkPresetSelect"><option value="">current settings</option></select><button id="duplicateArtworkPresetButton" class="small-button">duplicate</button><button id="deleteArtworkPresetButton" class="small-button">delete</button></div></label>
+                <label class="field"><span>Template name</span><input id="artworkPresetNameInput" placeholder="Label standard" /></label>
+                <div class="control-section-title"><span>Text</span><label class="mini-toggle"><input id="artworkTextEnabledInput" type="checkbox" checked /> show text</label></div>
+                <label class="field"><span>Artwork title</span><input id="artworkTitleInput" placeholder="Defaults to release title" /></label>
+                <label class="field"><span>Artist text</span><input id="artworkArtistInput" placeholder="Defaults to primary artist" /></label>
+                <!-- These are broadly available macOS fonts, so artwork previews and exported PNGs stay consistent offline. -->
+                <label class="field"><span>Font</span><select id="artworkFontInput"><option value="Avenir Next" selected>Avenir Next</option><option value="Helvetica Neue">Helvetica Neue</option><option value="Futura">Futura</option><option value="Gill Sans">Gill Sans</option><option value="Optima">Optima</option><option value="Century Gothic">Century Gothic</option><option value="Arial">Arial</option><option value="Arial Narrow">Arial Narrow</option><option value="Verdana">Verdana</option><option value="Trebuchet MS">Trebuchet MS</option><option value="Tahoma">Tahoma</option><option value="Franklin Gothic Medium">Franklin Gothic Medium</option><option value="Copperplate">Copperplate</option><option value="Baskerville">Baskerville</option><option value="Didot">Didot</option><option value="Bodoni 72">Bodoni 72</option><option value="Hoefler Text">Hoefler Text</option><option value="Palatino">Palatino</option><option value="Georgia">Georgia</option><option value="Rockwell">Rockwell</option><option value="American Typewriter">American Typewriter</option></select></label>
+                <div class="field-row"><label class="field"><span>Text colour</span><input id="artworkTextColorInput" type="color" value="#ffffff" /></label><label class="field"><span>Alignment</span><select id="artworkTextAlignInput"><option value="left">left</option><option value="center" selected>centre</option><option value="right">right</option></select></label></div>
+                <div class="field-row"><label class="field checkbox-field compact-checkbox"><input id="artworkTextBoldInput" type="checkbox" /><span>Bold</span></label><label class="field checkbox-field compact-checkbox"><input id="artworkTextItalicInput" type="checkbox" /><span>Italic</span></label></div>
+                <label class="range-field"><span>TITLE SIZE <input id="titleSizeReadout" class="range-value" value="180 px" readonly title="Double-click to type a value" /></span><input id="artworkTitleSizeInput" type="range" min="60" max="360" value="180" aria-label="Title size" /></label>
+                <label class="range-field"><span>TEXT OPACITY <input id="textOpacityReadout" class="range-value" value="100%" readonly title="Double-click to type a value" /></span><input id="artworkTextOpacityInput" type="range" min="0" max="100" value="100" aria-label="Text opacity" /></label>
+                <label class="range-field"><span>HORIZONTAL STRETCH <input id="textStretchReadout" class="range-value" value="100%" readonly title="Double-click to type a value" /></span><input id="artworkTextStretchInput" type="range" min="40" max="220" value="100" aria-label="Horizontal text stretch" /></label>
+                <label class="range-field"><span>LETTER SPACING <input id="letterSpacingReadout" class="range-value" value="0 px" readonly title="Double-click to type a value" /></span><input id="artworkLetterSpacingInput" type="range" min="-10" max="100" value="0" aria-label="Letter spacing" /></label>
+                <label class="range-field"><span>TEXT X <input id="textXReadout" class="range-value" value="50%" readonly title="Double-click to type a value" /></span><input id="artworkTextXInput" type="range" min="5" max="95" value="50" aria-label="Text X position" /></label>
+                <label class="range-field"><span>TEXT Y <input id="textYReadout" class="range-value" value="82%" readonly title="Double-click to type a value" /></span><input id="artworkTextYInput" type="range" min="5" max="95" value="82" aria-label="Text Y position" /></label>
+                <div class="control-section-title"><span>Label logo</span><label class="mini-toggle"><input id="artworkLogoEnabledInput" type="checkbox" checked /> show logo</label></div>
+                <p class="placeholder-note context-tip" id="logoStatus">Placeholder logo — replace it with the record label logo or turn it off.</p>
+                <label class="field"><span>Logo colour</span><input id="artworkLogoColorInput" type="color" value="#ffffff" /></label>
+                <label class="range-field"><span>LOGO OPACITY <input id="logoOpacityReadout" class="range-value" value="100%" readonly title="Double-click to type a value" /></span><input id="artworkLogoOpacityInput" type="range" min="0" max="100" value="100" aria-label="Logo opacity" /></label>
+                <label class="range-field"><span>LOGO SIZE <input id="logoSizeReadout" class="range-value" value="16%" readonly title="Double-click to type a value" /></span><input id="artworkLogoSizeInput" type="range" min="4" max="50" value="16" aria-label="Logo size" /></label>
+                <div class="field-row"><label class="range-field"><span>LOGO X <input id="logoXReadout" class="range-value" value="10%" readonly title="Double-click to type a value" /></span><input id="artworkLogoXInput" type="range" min="0" max="100" value="10" aria-label="Logo X position" /></label><label class="range-field"><span>LOGO Y <input id="logoYReadout" class="range-value" value="10%" readonly title="Double-click to type a value" /></span><input id="artworkLogoYInput" type="range" min="0" max="100" value="10" aria-label="Logo Y position" /></label></div>
+                <div class="control-section-title"><span>Generated release symbol</span><label class="mini-toggle"><input id="artworkSymbolEnabledInput" type="checkbox" checked /> show symbol</label></div>
+                <p class="placeholder-note context-tip">A repeatable mark generated from the Artwork Title and Artist Text above. Release details are used as a fallback.</p>
+                <div class="field-row"><label class="field"><span>Symbol colour</span><input id="artworkSymbolColorInput" type="color" value="#000000" /></label><label class="field"><span>Box colour</span><input id="artworkSymbolBoxColorInput" type="color" value="#ffffff" /></label></div>
+                <label class="field checkbox-field"><input id="artworkSymbolBoxEnabledInput" type="checkbox" checked /><span>Show coloured box around symbol</span></label>
+                <label class="range-field"><span>SYMBOL OPACITY <input id="symbolOpacityReadout" class="range-value" value="100%" readonly title="Double-click to type a value" /></span><input id="artworkSymbolOpacityInput" type="range" min="0" max="100" value="100" aria-label="Symbol opacity" /></label>
+                <label class="range-field"><span>SYMBOL SIZE <input id="symbolSizeReadout" class="range-value" value="11%" readonly title="Double-click to type a value" /></span><input id="artworkSymbolSizeInput" type="range" min="4" max="30" value="11" aria-label="Symbol size" /></label>
+                <div class="field-row"><label class="range-field"><span>SYMBOL X <input id="symbolXReadout" class="range-value" value="86%" readonly title="Double-click to type a value" /></span><input id="artworkSymbolXInput" type="range" min="0" max="100" value="86" aria-label="Symbol X position" /></label><label class="range-field"><span>SYMBOL Y <input id="symbolYReadout" class="range-value" value="10%" readonly title="Double-click to type a value" /></span><input id="artworkSymbolYInput" type="range" min="0" max="100" value="10" aria-label="Symbol Y position" /></label></div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <!-- PROMOTION: one source becomes several deliberately different platform layouts. -->
+        <section class="stage-view" data-stage-view="promotion" id="preparation-stage-promotion" aria-labelledby="preparation-stage-button-promotion" hidden>
+          <header class="stage-header"><div><p class="eyebrow">04 / PROMOTION</p><h1>Promotional copy</h1><p>Links, media-release information, platform descriptions, and social posts.</p></div></header>
+          <div class="promotion-layout">
+            <section class="panel promotion-editor">
+              <div class="panel-header"><span>Links + media</span><span>Release-specific</span></div>
+              <div class="form-grid form-grid--single compact-fields">
+                <label class="field"><span>Digital download</span><input id="downloadUrlInput" type="url" placeholder="https://…" /></label>
+                <label class="field"><span>Bandcamp</span><input id="bandcampUrlInput" type="url" placeholder="https://…" /></label>
+                <label class="field"><span>Streaming / smart link *</span><input id="streamingUrlInput" type="url" placeholder="https://…" /></label>
+                <label class="field"><span>Artist website</span><input id="websiteUrlInput" type="url" placeholder="https://…" /></label>
+                <label class="field"><span>Instagram</span><input id="instagramUrlInput" type="url" placeholder="https://…" /></label>
+                <label class="field"><span>Youtube</span><input id="youtubeUrlInput" type="url" placeholder="https://…" /></label>
+                <label class="field"><span>Soundcloud</span><input id="soundcloudUrlInput" type="url" placeholder="https://…" /></label><label class="field"><span>Spotify</span><input id="spotifyUrlInput" type="url" /></label><label class="field"><span>Apple music</span><input id="appleMusicUrlInput" type="url" /></label>
+                <label class="field"><span>Platform tags</span><textarea id="tagsInput" rows="3" placeholder="#ambient #drone #chill"></textarea><small class="context-tip">Use #ambient #drone #chill, or separate plain tags with commas or new lines. Artist templates can supply a reusable starting set.</small></label>
+                <label class="field"><span>Media headline *</span><input id="mediaHeadlineInput" placeholder="Artist announces new album…" /></label>
+                <label class="field"><span>Media angle / notes *</span><textarea id="mediaAngleInput" rows="5" placeholder="The newsworthy angle, context, milestones, or key quotation to include."></textarea></label>
+                <label class="field"><span>Press contact *</span><input id="pressContactInput" placeholder="Name · email · phone (if needed)" /></label>
+              </div>
+              <div class="panel-header subsection-header"><span>Playlist pitch</span><span>Editorial submissions</span></div>
+              <div class="form-grid form-grid--single compact-fields">
+                <label class="field"><span>Playlist pitch</span><textarea id="playlistPitchInput" rows="7" placeholder="A concise pitch foregrounding the lead single while explaining the sound and story of the full release."></textarea><small id="playlistPitchLeadSingle" class="context-tip">Choose a lead single in Masters. One adaptable pitch is used for Spotify for Artists, Apple Music for Artists, TIDAL, and similar services.</small></label>
+              </div>
+              <div class="panel-header subsection-header social-posts-header">
+                <span>Social posts</span>
+                <span id="socialPostCount">5 POSTS</span>
+                <button id="addSocialPostButton" class="text-button bordered" type="button">+ add post</button>
+              </div>
+              <div id="socialPostsList" class="social-posts-list"></div>
+            </section>
+            <section class="panel copy-preview-panel">
+              <div class="copy-tabs" role="tablist" aria-label="Promotional copy format">
+                <button class="copy-tab is-active" data-copy-tab="bandcamp" id="copy-tab-bandcamp" role="tab" aria-controls="copyPreview" aria-selected="true" tabindex="0">Bandcamp</button><button class="copy-tab" data-copy-tab="youtube" id="copy-tab-youtube" role="tab" aria-controls="copyPreview" aria-selected="false" tabindex="-1">YouTube</button><button class="copy-tab" data-copy-tab="soundcloud" id="copy-tab-soundcloud" role="tab" aria-controls="copyPreview" aria-selected="false" tabindex="-1">SoundCloud</button><button class="copy-tab" data-copy-tab="media" id="copy-tab-media" role="tab" aria-controls="copyPreview" aria-selected="false" tabindex="-1">Media</button><button class="copy-tab" data-copy-tab="playlistPitch" id="copy-tab-playlistPitch" role="tab" aria-controls="copyPreview" aria-selected="false" tabindex="-1">Pitch</button><button class="copy-tab" data-copy-tab="social" id="copy-tab-social" role="tab" aria-controls="copyPreview" aria-selected="false" tabindex="-1">Social</button><button class="copy-tab" data-copy-tab="tags" id="copy-tab-tags" role="tab" aria-controls="copyPreview" aria-selected="false" tabindex="-1">Tags</button>
+              </div>
+              <pre id="copyPreview" role="tabpanel" aria-labelledby="copy-tab-bandcamp" tabindex="0">Fill in the release details to generate platform copy.</pre>
+              <button id="copyTextButton" class="primary-button copy-button">copy current text</button>
+            </section>
+          </div>
+        </section>
+
+        <!-- VIDEO: long-form track videos and short portrait Canvases share one visual-delivery stage. -->
+        <section class="stage-view" data-stage-view="video" id="preparation-stage-video" aria-labelledby="preparation-stage-button-video" hidden>
+          <header class="stage-header"><div><p class="eyebrow">05 / VIDEOS</p><h1>Videos + canvases</h1><p>Prepare full track videos and short portrait loops from the release artwork.</p></div><div class="video-header-actions"><div class="video-section-tabs" role="tablist" aria-label="Video output type"><button id="showTrackVideosButton" aria-controls="trackVideosPanel" tabindex="0" class="text-button bordered is-active" type="button" role="tab" aria-selected="true">track videos</button><button id="showCanvasesButton" aria-controls="canvasesPanel" tabindex="-1" class="text-button bordered" type="button" role="tab" aria-selected="false">canvases</button></div><span class="stage-readout" id="videoReadout">0 masters ready</span></div></header>
+          <div class="video-layout" data-video-panel="tracks" id="trackVideosPanel" role="tabpanel" aria-labelledby="showTrackVideosButton" tabindex="0">
+            <section class="video-preview-panel">
+              <div class="video-preview-stack">
+                <canvas id="videoPreviewBackgroundCanvas" width="1280" height="720" aria-hidden="true"></canvas>
+                <canvas id="videoPreviewCanvas" width="1280" height="720" aria-label="Video layout preview"></canvas>
+              </div>
+              <div class="video-preview-actions">
+                <button id="playVideoPreviewButton" class="text-button bordered" type="button">pause preview</button>
+                <span id="videoPreviewStatus">Album artwork is used for both layers.</span>
+              </div>
+            </section>
+            <section class="panel video-controls">
+              <div class="panel-header"><span>Video layers</span><span>4K · 30 FPS</span></div>
+              <div class="form-grid form-grid--single">
+                <div class="control-section-title"><span>Video template</span><span>Layout settings only</span></div>
+                <label class="field"><span>Template</span><div class="inline-control inline-control--template"><select id="videoPresetSelect"><option value="">current settings</option></select><button id="duplicateVideoPresetButton" class="small-button" type="button">duplicate</button><button id="deleteVideoPresetButton" class="small-button" type="button">delete</button></div></label>
+                <label class="field"><span>Template name</span><input id="videoPresetNameInput" placeholder="Occupancy template" /></label>
+                <label class="field checkbox-field"><input id="defaultVideoPresetInput" type="checkbox" /><span>Use this template for new releases</span></label>
+                <div class="video-template-actions"><button id="saveVideoPresetAsNewButton" class="text-button bordered" type="button" disabled>save as new template</button><button id="saveVideoPresetButton" class="primary-button" type="button">save template</button></div>
+                <p class="placeholder-note context-tip">Templates keep sizes, blur, prominence, shadow, and logo placement. Selected image and video files remain specific to each release.</p>
+
+                <div class="control-section-title"><span>Foreground</span><span id="videoForegroundName">Album artwork</span></div>
+                <div class="video-source-actions"><button id="useArtworkForegroundButton" class="text-button bordered" type="button">use album artwork</button><button id="chooseVideoForegroundButton" class="primary-button" type="button">choose image or video</button></div>
+                <label class="range-field"><span>FOREGROUND SIZE <input id="videoForegroundSizeReadout" class="range-value" value="78%" readonly /></span><input id="videoForegroundSizeInput" type="range" min="20" max="100" value="78" /></label>
+                <label class="field checkbox-field"><input id="videoForegroundShadowEnabledInput" type="checkbox" /><span>Show artwork drop shadow</span></label>
+                <label class="range-field"><span>SHADOW INTENSITY <input id="videoForegroundShadowIntensityReadout" class="range-value" value="35%" readonly /></span><input id="videoForegroundShadowIntensityInput" type="range" min="0" max="100" value="35" /></label>
+
+                <div class="control-section-title"><span>Background</span><span id="videoBackgroundName">Same as foreground</span></div>
+                <label class="field checkbox-field"><input id="videoBackgroundMatchesInput" type="checkbox" checked /><span>Use the foreground file as background</span></label>
+                <div class="video-source-actions"><button id="useArtworkBackgroundButton" class="text-button bordered" type="button">use album artwork</button><button id="chooseVideoBackgroundButton" class="primary-button" type="button">choose image or video</button></div>
+                <label class="range-field"><span>GAUSSIAN BACKGROUND BLUR <input id="videoBackgroundBlurReadout" class="range-value" value="28" readonly /></span><input id="videoBackgroundBlurInput" type="range" min="0" max="200" value="28" /></label>
+                <label class="range-field"><span>BACKGROUND PROMINENCE <input id="videoBackgroundOpacityReadout" class="range-value" value="72%" readonly /></span><input id="videoBackgroundOpacityInput" type="range" min="0" max="100" value="72" /></label>
+
+                <div class="control-section-title"><span>Label logo</span><label class="mini-toggle"><input id="videoLogoEnabledInput" type="checkbox" checked /> show logo</label></div>
+                <p class="placeholder-note context-tip">Uses the current label logo from the Artwork section.</p>
+                <label class="range-field"><span>LOGO OPACITY <input id="videoLogoOpacityReadout" class="range-value" value="100%" readonly /></span><input id="videoLogoOpacityInput" type="range" min="0" max="100" value="100" /></label>
+                <label class="range-field"><span>LOGO SIZE <input id="videoLogoSizeReadout" class="range-value" value="10%" readonly /></span><input id="videoLogoSizeInput" type="range" min="2" max="30" value="10" /></label>
+                <div class="field-row"><label class="range-field"><span>LOGO X <input id="videoLogoXReadout" class="range-value" value="6%" readonly /></span><input id="videoLogoXInput" type="range" min="0" max="100" value="6" /></label><label class="range-field"><span>LOGO Y <input id="videoLogoYReadout" class="range-value" value="8%" readonly /></span><input id="videoLogoYInput" type="range" min="0" max="100" value="8" /></label></div>
+              </div>
+              <footer class="video-export-actions">
+                <p class="context-tip">Exports H.264 video with the corresponding master as 320 kbps AAC audio. Imported visual files remain untouched.</p>
+                <button id="exportTrackVideosButton" class="primary-button primary-button--large" type="button">export 4K track videos</button>
+                <button id="cancelTrackVideosButton" class="text-button bordered video-cancel-button" type="button" hidden>cancel video export</button>
+                <div id="videoExportProgress" class="video-export-progress" role="progressbar" aria-label="Video export progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" hidden><span id="videoExportProgressBar"></span></div>
+                <p id="videoExportProgressLabel" class="video-export-progress-label" hidden></p>
+                <span id="videoExportStatus" role="status"></span>
+              </footer>
+            </section>
+          </div>
+
+          <!-- CANVASES: a deterministic, loop-aware physical-film generator for Spotify. -->
+          <div class="canvas-layout" data-video-panel="canvases" id="canvasesPanel" role="tabpanel" aria-labelledby="showCanvasesButton" tabindex="0" hidden>
+            <section class="canvas-preview-panel">
+              <div class="canvas-preview-frame">
+                <div class="canvas-preview-stack">
+                  <canvas id="canvasPreviewBackgroundCanvas" width="576" height="1024" aria-hidden="true"></canvas>
+                  <canvas id="canvasPreviewCanvas" width="576" height="1024" aria-label="Portrait Canvas preview"></canvas>
+                  <video id="canvasCompressedPreviewVideo" muted loop playsinline hidden aria-label="Compressed Canvas preview"></video>
+                  <div id="canvasSafeAreaOverlay" class="canvas-safe-area" aria-hidden="true"><span>mobile safe area</span></div>
+                </div>
+              </div>
+              <div class="canvas-preview-actions">
+                <button id="playCanvasPreviewButton" class="text-button bordered" type="button">pause preview</button>
+                <button id="canvasSeamPreviewButton" class="text-button bordered" type="button">preview loop boundary</button>
+                <button id="canvasCompressedPreviewButton" class="text-button bordered" type="button">preview compressed output</button>
+                <button id="canvasPositionButton" class="text-button bordered" type="button">reposition image</button>
+                <span id="canvasPreviewStatus">Album artwork · Used 16 mm</span>
+              </div>
+            </section>
+            <section class="panel canvas-controls">
+              <div class="panel-header"><span>Procedural film canvas</span><span>9:16 · SILENT MP4</span></div>
+              <div class="form-grid form-grid--single">
+                <div class="control-section-title"><span>Composition</span><span id="canvasSourceName">Album artwork</span></div>
+                <div class="video-source-actions"><button id="useArtworkCanvasButton" class="text-button bordered" type="button">use album artwork</button><button id="chooseCanvasImageButton" class="primary-button" type="button">choose another image</button></div>
+                <div class="field-row">
+                  <label class="field"><span>Placement</span><select id="canvasCompositionModeInput"><option value="fill">Fill frame</option><option value="fit">Fit complete image</option><option value="artwork-background">Artwork with background</option><option value="crop">Full-bleed crop</option></select></label>
+                  <label class="field"><span>Background</span><select id="canvasBackgroundTreatmentInput"><option value="blurred">Blurred enlargement</option><option value="darkened">Darkened enlargement</option><option value="solid">Solid colour</option></select></label>
+                </div>
+                <label class="field canvas-colour-field"><span>Background colour</span><input id="canvasBackgroundColorInput" type="color" value="#111315" /></label>
+                <label class="range-field"><span>IMAGE SCALE <input id="canvasImageScaleReadout" class="range-value" value="100%" readonly /></span><input id="canvasImageScaleInput" type="range" min="80" max="160" value="100" /></label>
+                <label class="field checkbox-field"><input id="canvasSafeAreaInput" type="checkbox" checked /><span>Show mobile safe area</span></label>
+                <p class="placeholder-note context-tip">Unlock repositioning and drag the preview to choose the crop. Film movement uses extra overscan, so the source never reveals an empty edge.</p>
+
+                <div class="control-section-title"><span>Film character</span><span>Loop-aware presets</span></div>
+                <label class="field"><span>Preset</span><select id="canvasPresetInput"><option value="clean-35mm">Clean 35 mm</option><option value="used-16mm">Used 16 mm</option><option value="worn-16mm">Worn 16 mm</option><option value="aged-8mm">Aged 8 mm</option><option value="archival-monochrome">Archival monochrome</option><option value="damaged-projection">Damaged projection</option></select></label>
+                <p id="canvasPresetDescription" class="placeholder-note">Controlled moving grain, gentle weave, intermittent dust, mild softness, and rare scratches.</p>
+                <div class="field-row">
+                  <label class="field"><span>Film format</span><select id="canvasFilmFormatInput"><option value="35mm">35 mm</option><option value="16mm" selected>16 mm</option><option value="8mm">8 mm</option></select></label>
+                  <label class="field"><span>Film condition</span><select id="canvasFilmConditionInput"><option value="clean">Clean</option><option value="used" selected>Used</option><option value="worn">Worn</option><option value="aged">Aged</option><option value="archival">Archival</option><option value="damaged">Damaged</option></select></label>
+                </div>
+                <div class="canvas-seed-row"><label class="field"><span>Random seed</span><input id="canvasSeedInput" type="number" min="1" max="2147483646" value="271828" /></label><button id="regenerateCanvasButton" class="text-button bordered" type="button">regenerate variation</button></div>
+                <label class="range-field"><span>MASTER INTENSITY <input id="canvasIntensityReadout" class="range-value" value="32%" readonly /></span><input id="canvasIntensityInput" type="range" min="0" max="100" value="32" /></label>
+
+                <details class="canvas-control-group" open>
+                  <summary>GRAIN + DENSITY</summary>
+                  <div class="canvas-control-group-body">
+                    <label class="range-field"><span>GRAIN AMOUNT <input id="canvasGrainAmountReadout" class="range-value" value="42%" readonly /></span><input id="canvasGrainAmountInput" type="range" min="0" max="100" value="42" /></label>
+                    <label class="range-field"><span>GRAIN SIZE <input id="canvasGrainSizeReadout" class="range-value" value="42%" readonly /></span><input id="canvasGrainSizeInput" type="range" min="0" max="100" value="42" /></label>
+                    <label class="range-field"><span>GRAIN CLUMPING <input id="canvasGrainClumpingReadout" class="range-value" value="34%" readonly /></span><input id="canvasGrainClumpingInput" type="range" min="0" max="100" value="34" /></label>
+                    <label class="range-field"><span>EXPOSURE FLICKER <input id="canvasExposureFlickerReadout" class="range-value" value="28%" readonly /></span><input id="canvasExposureFlickerInput" type="range" min="0" max="100" value="28" /></label>
+                    <label class="range-field"><span>COLOUR INSTABILITY <input id="canvasColourInstabilityReadout" class="range-value" value="12%" readonly /></span><input id="canvasColourInstabilityInput" type="range" min="0" max="100" value="12" /></label>
+                  </div>
+                </details>
+
+                <details class="canvas-control-group">
+                  <summary>REGISTRATION + OPTICS</summary>
+                  <div class="canvas-control-group-body">
+                    <label class="range-field"><span>HORIZONTAL WEAVE <input id="canvasHorizontalWeaveReadout" class="range-value" value="28%" readonly /></span><input id="canvasHorizontalWeaveInput" type="range" min="0" max="100" value="28" /></label>
+                    <label class="range-field"><span>VERTICAL JITTER <input id="canvasVerticalJitterReadout" class="range-value" value="24%" readonly /></span><input id="canvasVerticalJitterInput" type="range" min="0" max="100" value="24" /></label>
+                    <label class="range-field"><span>ROTATION <input id="canvasRotationReadout" class="range-value" value="18%" readonly /></span><input id="canvasRotationInput" type="range" min="0" max="100" value="18" /></label>
+                    <label class="range-field"><span>SCALE BREATHING <input id="canvasScaleBreathingReadout" class="range-value" value="12%" readonly /></span><input id="canvasScaleBreathingInput" type="range" min="0" max="100" value="12" /></label>
+                    <label class="range-field"><span>OPTICAL SOFTNESS <input id="canvasOpticalSoftnessReadout" class="range-value" value="30%" readonly /></span><input id="canvasOpticalSoftnessInput" type="range" min="0" max="100" value="30" /></label>
+                    <label class="range-field"><span>HALATION <input id="canvasHalationReadout" class="range-value" value="16%" readonly /></span><input id="canvasHalationInput" type="range" min="0" max="100" value="16" /></label>
+                    <label class="range-field"><span>VIGNETTE <input id="canvasVignetteReadout" class="range-value" value="30%" readonly /></span><input id="canvasVignetteInput" type="range" min="0" max="100" value="30" /></label>
+                    <label class="field checkbox-field"><input id="canvasMonochromeInput" type="checkbox" /><span>Black + white print</span></label>
+                  </div>
+                </details>
+
+                <details class="canvas-control-group">
+                  <summary>DIRT + RARE EVENTS</summary>
+                  <div class="canvas-control-group-body">
+                    <label class="range-field"><span>DUST AMOUNT <input id="canvasDustAmountReadout" class="range-value" value="28%" readonly /></span><input id="canvasDustAmountInput" type="range" min="0" max="100" value="28" /></label>
+                    <label class="range-field"><span>SCRATCH PROBABILITY <input id="canvasScratchProbabilityReadout" class="range-value" value="12%" readonly /></span><input id="canvasScratchProbabilityInput" type="range" min="0" max="100" value="12" /></label>
+                    <label class="range-field"><span>SCRATCH PERSISTENCE <input id="canvasScratchPersistenceReadout" class="range-value" value="24%" readonly /></span><input id="canvasScratchPersistenceInput" type="range" min="0" max="100" value="24" /></label>
+                    <label class="range-field"><span>HAIR PROBABILITY <input id="canvasHairProbabilityReadout" class="range-value" value="0%" readonly /></span><input id="canvasHairProbabilityInput" type="range" min="0" max="100" value="0" /></label>
+                    <label class="range-field"><span>DAMAGE PROBABILITY <input id="canvasDamageProbabilityReadout" class="range-value" value="0%" readonly /></span><input id="canvasDamageProbabilityInput" type="range" min="0" max="100" value="0" /></label>
+                    <label class="range-field"><span>LIGHT-LEAK PROBABILITY <input id="canvasLightLeakProbabilityReadout" class="range-value" value="0%" readonly /></span><input id="canvasLightLeakProbabilityInput" type="range" min="0" max="100" value="0" /></label>
+                    <label class="field"><span>Cue marks</span><select id="canvasCueMarksInput"><option value="off">Off</option><option value="rare">Rare</option><option value="always">Always include</option></select></label>
+                    <p class="placeholder-note context-tip">Large defects and bright leaks repeat every few seconds, so they remain off in the subtle defaults. Damaged Projection is intentionally more noticeable.</p>
+                  </div>
+                </details>
+
+                <div class="control-section-title"><span>Spotify output</span><span>Validated before completion</span></div>
+                <label class="range-field"><span>DURATION <input id="canvasDurationReadout" class="range-value" value="8 s" readonly /></span><input id="canvasDurationInput" type="range" min="3" max="8" step="1" value="8" /></label>
+                <div class="field-row">
+                  <label class="field"><span>Simulated film rate</span><select id="canvasFilmFrameRateInput"><option value="18">18 fps</option><option value="24" selected>24 fps</option><option value="30">30 fps</option></select></label>
+                  <label class="field"><span>Output frame rate</span><select id="canvasOutputFrameRateInput"><option value="24" selected>24 fps</option><option value="30">30 fps</option></select></label>
+                </div>
+                <label class="field"><span>Files</span><select id="canvasExportModeInput"><option value="single">one file for the release</option><option value="tracks">one seeded variation per track</option></select></label>
+                <button id="resetCanvasDefaultsButton" class="text-button bordered" type="button">reset to subtle defaults</button>
+              </div>
+              <footer class="video-export-actions">
+                <p id="canvasValidationNote" class="context-tip">Exports 576 × 1024 H.264, yuv420p, standard Rec.709 SDR, fast-start MP4, and no audio.</p>
+                <button id="exportCanvasesButton" class="primary-button primary-button--large" type="button">export Canvas</button>
+                <button id="cancelCanvasesButton" class="text-button bordered video-cancel-button" type="button" hidden>cancel Canvas export</button>
+                <div id="canvasExportProgress" class="video-export-progress" role="progressbar" aria-label="Canvas export progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" hidden><span id="canvasExportProgressBar"></span></div>
+                <p id="canvasExportProgressLabel" class="video-export-progress-label" hidden></p>
+                <span id="canvasExportStatus" role="status"></span>
+              </footer>
+            </section>
+          </div>
+        </section>
+
+        <!-- REVIEW: the checklist guides completion, while progressive export remains available at every stage. -->
+        <section class="stage-view" data-stage-view="review" id="preparation-stage-review" aria-labelledby="preparation-stage-button-review" hidden>
+          <header class="stage-header"><div><p class="eyebrow">06 / REVIEW + EXPORT</p><h1>Release checklist + export</h1><p>Review required items and export the masters, artwork, copy, and admin files in one package.</p></div><span class="stage-readout" id="overallReadout">not ready</span></header>
+          <div class="review-layout">
+            <section class="panel checklist-panel"><div class="panel-header"><span>Release checklist</span><span id="checklistSummary">0 / 0 COMPLETE</span></div><div id="checklist"></div></section>
+            <aside class="export-panel">
+              <p class="micro-label">PACKAGE PREVIEW</p>
+              <div class="folder-tree" id="folderTree"></div>
+              <p class="export-note context-tip">Export whatever is ready now, then update the same folder as links, media copy, and posts are completed. After the first export, saved text changes automatically refresh the Copy and Admin files. You can also run that lightweight update manually without processing any music or artwork.</p>
+              <button id="exportReleaseButton" class="primary-button primary-button--large">export current release files</button>
+              <button id="updateNonMusicButton" class="text-button bordered export-secondary" disabled>update non-music files</button>
+              <button id="chooseDifferentExportButton" class="text-button bordered export-secondary" hidden>choose a different export location</button>
+              <p class="export-status" id="exportStatus"></p>
+            </aside>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- App settings are shared by every release and are deliberately kept out of saved project files. -->
+    <dialog id="openAiSettingsDialog" class="app-settings-dialog" aria-labelledby="openAiSettingsDialogTitle">
+      <div class="app-settings-shell">
+        <header class="app-settings-header">
+          <div><p class="eyebrow">APP-WIDE SETTINGS</p><h2 id="openAiSettingsDialogTitle">OpenAI drafting</h2><p>These settings apply to every future release. The API key is stored in macOS Keychain, not inside a release project.</p></div>
+          <button id="closeOpenAiSettingsDialogButton" class="icon-button" type="button" aria-label="Close OpenAI settings">×</button>
+        </header>
+        <section class="app-settings-body">
+          <label class="field"><span>Openai api key</span><input id="openAiApiKeyInput" type="password" autocomplete="off" placeholder="Paste an OpenAI API key" /></label>
+          <label class="field"><span>Model</span><input id="openAiModelInput" value="gpt-5.6-sol" spellcheck="false" /></label>
+          <p class="settings-note context-tip">You only need to enter the key once. You can change the selected model later without changing any saved release.</p>
+          <footer class="app-settings-actions">
+            <span id="openAiSettingsStatus" role="status"></span>
+            <button id="removeOpenAiKeyButton" class="text-button" type="button">remove key</button>
+            <button id="saveOpenAiKeyButton" class="primary-button" type="button">save settings</button>
+          </footer>
+        </section>
+      </div>
+    </dialog>
+
+    <!-- Artist templates are reusable across releases and remain editable after they are applied. -->
+    <dialog id="artistPresetDialog" class="artist-preset-dialog" aria-labelledby="artistPresetDialogTitle">
+      <div class="artist-preset-dialog-shell">
+        <header class="artist-preset-dialog-header">
+          <div><p class="eyebrow">REUSABLE DETAILS</p><h2 id="artistPresetDialogTitle">Artist templates</h2><p>Save artist, composer, link, and press details for future releases.</p></div>
+          <button id="closeArtistPresetDialogButton" class="icon-button" type="button" aria-label="Close artist templates">×</button>
+        </header>
+        <div class="artist-preset-dialog-body">
+          <aside class="artist-preset-sidebar">
+            <label class="field"><span>Saved artist</span><select id="artistPresetEditorSelect"><option value="">new artist template</option></select></label>
+            <p class="context-tip">Select an existing artist to edit it, or start a new template. Applying a template fills the current release but never locks those fields.</p>
+            <button id="newArtistPresetButton" class="text-button bordered" type="button">new template</button>
+            <button id="deleteArtistPresetButton" class="text-button artist-delete-button" type="button" disabled>delete template</button>
+          </aside>
+          <section class="artist-preset-editor">
+            <div class="form-grid">
+              <label class="field"><span>Template name *</span><input id="artistPresetNameInput" placeholder="Bounty Hill" /></label>
+              <label class="field"><span>Primary artist *</span><input id="artistPresetPrimaryArtistInput" placeholder="Bounty Hill" /></label>
+              <label class="field"><span>Album artist</span><input id="artistPresetAlbumArtistInput" placeholder="Defaults to primary artist" /></label>
+              <label class="field"><span>Composer</span><input id="artistPresetComposerInput" placeholder="Patrick Carroll" /></label>
+              <label class="field field--wide"><span>Bandcamp url / starting point</span><input id="artistPresetBandcampUrlInput" type="url" placeholder="https://artist.bandcamp.com/album/" /></label>
+              <label class="field field--wide"><span>Artist website</span><input id="artistPresetWebsiteUrlInput" type="url" placeholder="https://…" /></label>
+              <label class="field"><span>Spotify</span><input id="artistPresetSpotifyUrlInput" type="url" /></label><label class="field"><span>Apple Music</span><input id="artistPresetAppleMusicUrlInput" type="url" /></label><label class="field"><span>Instagram</span><input id="artistPresetInstagramUrlInput" type="url" placeholder="https://instagram.com/…" /></label>
+              <label class="field"><span>Youtube</span><input id="artistPresetYoutubeUrlInput" type="url" placeholder="https://youtube.com/…" /></label>
+              <label class="field"><span>Soundcloud</span><input id="artistPresetSoundcloudUrlInput" type="url" placeholder="https://soundcloud.com/…" /></label>
+              <label class="field field--wide"><span>Default platform tags</span><textarea id="artistPresetTagsInput" rows="3" placeholder="#ambient #drone #chill"></textarea><small class="context-tip">Use hashtag-separated tags, commas, or new lines. Applied to each release as an editable starting set for Bandcamp and SoundCloud.</small></label>
+              <label class="field"><span>Press contact</span><input id="artistPresetPressContactInput" placeholder="Name · email · phone" /></label>
+            </div>
+            <footer class="artist-preset-actions">
+              <span id="artistPresetStatus" role="status"></span>
+              <button id="applyArtistPresetButton" class="text-button bordered" type="button" disabled>apply to release</button>
+              <button id="saveArtistPresetAsNewButton" class="text-button bordered" type="button" disabled>save as new</button>
+              <button id="saveArtistPresetButton" class="primary-button" type="button">save template</button>
+            </footer>
+          </section>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- The row template is cloned once per master so its structure stays consistent. -->
+    <template id="masterRowTemplate">
+      <article class="master-card">
+        <header class="master-card-header"><div><button class="master-drag-handle" type="button" draggable="true" aria-label="Drag to reorder this master" title="Drag to reorder">⠿</button><span class="track-index">01</span><strong class="source-name">source.wav</strong><small class="source-details">WAV · 00:00</small></div><div class="master-state"><label class="lead-single-toggle"><input class="lead-single-input" type="checkbox" /><span>lead single</span></label><div class="master-order-buttons"><button class="move-master-up" type="button" aria-label="Move master up" title="Move up">↑</button><button class="move-master-down" type="button" aria-label="Move master down" title="Move down">↓</button></div><span class="issue-badge">needs details</span><button class="remove-master-button" aria-label="Remove master">×</button></div></header>
+        <div class="master-filename"><span>Output file</span><code class="output-filename">01 - Artist - Track.wav</code><button class="reveal-master-button" type="button">show in Finder</button></div>
+        <!-- One shared audio player powers these controls, so only one master plays at a time. -->
+        <div class="master-player">
+          <button class="master-play-button" type="button" aria-label="Play master">▶</button>
+          <span class="master-current-time">00:00</span>
+          <input class="master-scrubber" type="range" min="0" max="0" value="0" step="0.01" aria-label="Master playback position" />
+          <span class="master-total-time">00:00</span>
+          <span class="master-playback-status" role="status"></span>
+        </div>
+        <div class="master-fields">
+          <label class="field"><span>Track title *</span><input data-track-field="title" /></label>
+          <label class="field"><span>Track artist *</span><input data-track-field="artist" /></label>
+          <label class="field"><span>Album *</span><input data-track-field="album" /></label>
+          <label class="field"><span>Track number *</span><input data-track-field="trackNumber" inputmode="numeric" /></label>
+          <label class="field"><span>ISRC</span><input data-track-field="isrc" /></label>
+          <label class="field"><span>Composer</span><input data-track-field="composer" /></label>
+          <label class="field"><span>Genre</span><input data-track-field="genre" /></label>
+          <label class="field"><span>Comment</span><input data-track-field="comment" /></label>
+        </div>
+      </article>
+    </template>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

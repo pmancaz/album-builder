@@ -1,0 +1,24 @@
+{
+  "name": "album-builder",
+  "private": true,
+  "version": "0.2.2",
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 4174 --strictPort",
+    "build": "vite build",
+    "tauri": "tauri",
+    "tauri:dev": "tauri dev",
+    "tauri:build": "tauri build",
+    "test": "node --test tests/*.test.mjs",
+    "test:browser": "node tests/project-lifecycle.browser.mjs && node tests/audio-regressions.mjs && node --test tests/ui-regressions.mjs && node tests/settings.browser.mjs && node tests/preparation-integration.browser.mjs && node tests/wash-bridge.browser.mjs && node tests/preparation-async.browser.mjs && node tests/analysis-cache.browser.mjs",
+    "test:production": "npm run build && node --test tests/production-workers.browser.mjs"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.11.1",
+    "vite": "^6.4.5"
+  },
+  "dependencies": {
+    "@tauri-apps/api": "^2.11.1",
+    "@tauri-apps/plugin-dialog": "^2.7.1"
+  }
+}

@@ -1,0 +1,9 @@
+<!-- A simple release-package mark that stays legible at small macOS icon sizes. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <rect width="1024" height="1024" rx="190" fill="#11110f"/>
+  <rect x="126" y="126" width="772" height="772" fill="none" stroke="#f4f1e9" stroke-width="20"/>
+  <circle cx="512" cy="512" r="252" fill="none" stroke="#2f6fed" stroke-width="24"/>
+  <circle cx="512" cy="512" r="46" fill="#f4f1e9"/>
+  <path d="M512 260v504M260 512h504" stroke="#f4f1e9" stroke-width="12" opacity=".72"/>
+  <text x="512" y="552" fill="#11110f" font-family="monospace" font-size="66" font-weight="700" text-anchor="middle">RP</text>
+</svg>

@@ -1,0 +1,43 @@
+node_modules/
+dist/
+src-tauri/target/
+.DS_Store
+
+# Local environment settings can contain API keys or machine-specific values.
+.env
+.env.*
+!.env.example
+
+# Signing certificates and private keys must never be committed.
+*.pem
+*.key
+*.p8
+*.p12
+*.mobileprovision
+*.keystore
+*.jks
+
+# Generated reports, caches, logs, and local databases stay on the developer's machine.
+.vite/
+coverage/
+*.log
+*.sqlite
+*.sqlite3
+*.db
+
+# Album exports and local test project records are user-generated material.
+exports/
+test-output/
+.album-builder-projects/
+
+# Packaged development apps and generated UI-check evidence are local outputs.
+releases/
+validation/
+test-results/
+
+# Personal album library chosen inside this checkout.
+/database/
+
+# Private working media and unpublished copy drafts.
+/walkthrough video/
+/Album Builder Website Content.txt
